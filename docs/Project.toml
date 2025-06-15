@@ -1,29 +1,11 @@
-name = "DS9ui"
-uuid = "03da5ba1-8776-4371-889c-f445af0a490c"
 authors = ["Marco Lombardi <marco.lombardi@gmail.com> and contributors"]
 version = "1.0.0-DEV"
 
 [deps]
-DocumenterTools = "35a29f4d-8980-5a13-9543-d66fff28ecb8"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Metaheuristics = "bcdb8e00-2c21-11e9-3065-2b553b22f898"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 XPA = "d310a076-6a08-52b6-ab78-79baa254182b"
-
-[compat]
-DocumenterTools = "0.1.20"
-Metaheuristics = "3.4.0"
-OffsetArrays = "1.17.0"
-Printf = "1.11.0"
-REPL = "1.11.0"
-StaticArrays = "1.9.13"
-XPA = "0.2.2"
-julia = "1.6.7"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
