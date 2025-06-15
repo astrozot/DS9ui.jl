@@ -2,6 +2,7 @@ authors = ["Marco Lombardi <marco.lombardi@gmail.com> and contributors"]
 version = "1.0.0-DEV"
 
 [deps]
+DS9ui = "03da5ba1-8776-4371-889c-f445af0a490c"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Metaheuristics = "bcdb8e00-2c21-11e9-3065-2b553b22f898"
 OffsetArrays = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
