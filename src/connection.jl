@@ -116,8 +116,8 @@ By default the application will be named using the current PID.
 The `method` optional keywords is used to set the XPA communication method:
 "local" is the recommended way for local executions.
 
-This function authomaticall calls [`ds9init`](@ref) to make sure the XPA
-communication is correctly established.
+This function authomaticall sets the default access point, so that all further
+requests are forwarded to the newly open DS9 window.
 """
 function ds9(name::String=string(getpid()); method="local", path="ds9", silent=false)
     global access_point
@@ -141,8 +141,7 @@ function ds9(name::String=string(getpid()); method="local", path="ds9", silent=f
         end
     end
     silent || println(" failed")
-    @warn """Timeout establishing an XPA connection.
-    If DS9 has been opened after this call, call `ds9init()` to initialize the connection."""
+    @warn "Timeout establishing an XPA connection."
 end
 
 
