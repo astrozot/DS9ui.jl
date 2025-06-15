@@ -12,7 +12,6 @@ makedocs(
         "API" => Any[
             "Connection"=>"connection.md",
             "Interface"=>"interface.md",
-            "Analysis"=>"analysis.md",
         ],
     ])
 
