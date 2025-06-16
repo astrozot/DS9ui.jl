@@ -22,7 +22,7 @@ function ds9set(ap, command::AbstractString; kw...)
         end
         @warn "XPA $msg"
     elseif r.replies == 0
-        @warn "No replies for command `$cmd`"
+        @warn "No replies for command `$command`"
     end
 end
 ds9set(command; kw...) = ds9set(_current_ap(), command; kw...)
@@ -131,6 +131,7 @@ Return the WCS transformation of the current image in the DS9 window.
   `false`, the WCS is extracted from the DS9 window.
 """
 function ds9wcs(ap=_current_ap(); useheader=true)
+    wcskeys = r"^(WCSAXES |CRPIX.  |CRVAL.  |CTYPE.  |CDELT.  |PC._.   |CD._.   |PV._.   |RADESYS |LATPOLE |LONPOLE |CUNIT.  )="
     if useheader
         reply = XPA.get(ap, "fits header")
         header = XPA.get_data(String, reply)
@@ -142,38 +143,76 @@ function ds9wcs(ap=_current_ap(); useheader=true)
         end
         rm(path, force=true)
     end
-    header
-    # FIXME: Gravity.wcs_from_header(Gravity.fits_split_header(replace(header, "\n" => "")))
+    filter(startswith(wcskeys), split(header, "\n"))
 end
 
 """
     ds9image([access_point,] image; usefile=true, wcs=nothing)
+    ds9image!([access_point,] image; usefile=true, wcs=nothing)
 
-Display the `image` in the current frame of DS9.
+Display the `image` using SAOImage DS9.
+
+In the bang (`ds9image!`) version, the image replaces the content of the
+current frame.
 """
-function ds9image(ap, image; usefile=true, wcs=nothing)
+function ds9image!(ap, path::String; new=false, kw...)
+    f = FITS(path, "r")
+    newstr = new ? "new" : ""
+    for hdu ∈ f
+        s = size(hdu)
+        if length(s) == 2
+            # XPA.set(ap, "frame new")
+            XPA.set(ap, "file $newstr $(abspath(path))")
+            close(f)
+            return nothing
+        elseif length(s) == 3
+            XPA.set(ap, "rgbcube $newstr $(abspath(path))")
+            close(f)
+            return nothing
+        end
+    end
+    @warn "No valid image found"
+    return nothing
+end
+
+function ds9image!(ap, image; usefile=true, wcs=nothing, new=false, kw...)
+    newstr = new ? "new" : ""
     if usefile
         path = tempname()
         try
-            # FIXME
-            Gravity.writefits(image, path, wcs=wcs, silent=true)
-            reply = XPA.set(ap, "file $path")
-        finally
-            rm(path, force=true)
+            f = FITS(path, "w")
+            write(f, image)
+            close(f)
+            XPA.set(ap, "file $newstr $path")
+        catch
+            @error "Error writing temporary file $path"
         end
+        rm(path, force=true)
+        nothing
     else
         factor = isa(image, AbstractMatrix{<:AbstractFloat}) ? -8 : 8
-        reply = XPA.set(ap, 
-            "array new[xdim=$(size(image, 2)),ydim=$(size(image, 1)),bitpix=$(factor * sizeof(eltype(image)))]";
+        XPA.set(ap, 
+            "array $newstr[xdim=$(size(image, 2)),ydim=$(size(image, 1)),bitpix=$(factor * sizeof(eltype(image)))]";
             data=image)
         if !isnothing(wcs)
             # FIXME
-            XPA.set(ap, "wcs replace"; data=Gravity.fits_join_header(wcs_to_header(wcs)))
+            XPA.set(ap, "wcs replace"; data=wcs)
         end
     end
+    nothing
 end
-@inline ds9image(image; kw...) = ds9image(_current_ap(), image; kw...)
+@inline ds9image!(image; kw...) = ds9image!(_current_ap(), image; kw...)
 
+@doc (@doc ds9image!)
+@inline ds9image(args...; kw...) = ds9image!(args...; new=true, kw...)
+
+
+"""
+    ds9delete([access_point])
+
+Delete the current frame of DS9.
+"""
+@inline ds9delete(ap=access_point) = (XPA.set(ap, "frame delete"); nothing)
 
 """
     ds9getregions([access_point,] name=""; coords=:image, selected=false)

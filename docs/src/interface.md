@@ -4,6 +4,7 @@
 
 ```@docs
 DS9ui.ds9image
+DS9ui.ds9delete
 DS9ui.ds9mask
 DS9ui.ds9fitprofiles
 DS9ui.ds9pickobj

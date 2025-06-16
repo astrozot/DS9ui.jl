@@ -239,13 +239,20 @@ function ds9mask(ap, name; coords=:image, selected=false,
     end
     # Get the image
     if usefits
-        # FIXME
-        path = tempname()
-        reply = XPA.set(ap, "savefits $path")
-        # FIXME
-        fullimage = Gravity.readfits(path, silent=true)
+        local image, path
+        try
+            path = tempname()
+            reply = XPA.set(ap, "save fits $path")
+            f = FITS(path, "r")
+            fullimage = read(f[1])
+            close(f)
+            image = fullimage[axes(mask)...]
+        catch
+            rm(path, force=true)
+            @error "Could not create temporary file"
+            return nothing
+        end
         rm(path, force=true)
-        image = fullimage[axes(mask)...]
     else
         xrange = extrema(axes(mask, 1))
         yrange = extrema(axes(mask, 2))
