@@ -1,7 +1,5 @@
-"""A string saving the XPA address of the current access point, or "" if no
-connection is established.
-"""
-access_point::String = ""
+"""The current XPA access point"""
+access_point::Union{XPA.AccessPoint, Nothing} = nothing
 
 """
     _current_ap()
@@ -13,14 +11,14 @@ establishes a new connection using [`connect`](@ref).
 """
 function _current_ap()
     global access_point
-    if access_point == ""
+    if isnothing(access_point)
         try
             access_point = connect()
         catch
             @warn "Failed to connect to SAOImage DS9"
         end
     end
-    return access_point
+    return XPA.address(access_point)
 end
 
 """
@@ -43,8 +41,7 @@ function connect(ident::Union{Regex,AbstractString}="DS9:*"; method="local", kw.
     if length(rep) != 1 || !XPA.verify(rep)
         error("XPA server at address \"$apt\" is not a valid SAOImage DS9 server")
     end
-    addr = XPA.address(apt)
-    access_point = addr
+    access_point = apt
 end
 
 
@@ -100,7 +97,7 @@ function ds9select(ident::Union{Regex,AbstractString}="DS9:*"; method="local",
             user = good_apts[choice].user
             @info "Connected to the XPA access point $class:$name (user=$user)"
         end
-        access_point = XPA.address(good_apts[choice])
+        access_point = good_apts[choice]
         return nothing
     end
 end
@@ -135,7 +132,7 @@ function ds9(name::String=string(getpid()); method="local", path="ds9", silent=f
         sleep(0.4)
         apt = XPA.find("DS9:$name")
         if !isnothing(apt)
-            access_point = XPA.address(apt)
+            access_point = apt
             silent || println(" done")
             return
         end
@@ -154,7 +151,7 @@ function ds9close(ap=_current_ap())
     global access_point
     ds9set(ap, "exit")
     if access_point == ap
-        access_point = ""
+        access_point = nothing
     end
     nothing
 end

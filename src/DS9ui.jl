@@ -16,4 +16,6 @@ include("pickobj.jl")
 
 export ds9select, ds9, ds9close, ds9image, ds9image!, ds9delete, ds9pickobj
 
+public ds9cursor, ds9set, ds9get, ds9wcs, ds9fitprofiles, ds9mask, ds9getregions
+
 end
