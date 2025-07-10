@@ -23,7 +23,7 @@ OffsetArrays = "1.17.0"
 Printf = "1.11.0"
 REPL = "1.11.0"
 StaticArrays = "1.9.13"
-XPA = "0.2.2"
+XPA = "0.2.2, 0.3"
 julia = "1.6.7"
 
 [extras]
